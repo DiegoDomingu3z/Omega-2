@@ -1,23 +1,24 @@
 import BaseController from "../utils/BaseController";
-
+import { accountService } from "../services/AccountService";
 export class AccountsController extends BaseController {
 
     constructor() {
         super('account')
         this.router
-            .get('', this.getMyAccount)
+            .post('', this.createAccount)
 
     }
-
-
-    async getMyAccount(req, res, next) {
+    async createAccount(req, res, next) {
         try {
-            const myAccount = "Diego"
-            res.send(myAccount)
+            const data = await accountService.createAccount(req.body)
+            res.send("Account Successfully Created")
         } catch (error) {
             next(error)
         }
     }
+
+
+
 
 }
 
