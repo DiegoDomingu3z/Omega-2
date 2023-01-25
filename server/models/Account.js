@@ -25,6 +25,5 @@ export const AccountSchema = new Schema({
         type: Number,
         minlength: 16
     },
-
 },
     { timestamps: true, toJSON: { virtuals: true, } })

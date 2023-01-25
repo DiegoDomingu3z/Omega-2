@@ -6,8 +6,10 @@ export class AccountsController extends BaseController {
         super('account')
         this.router
             .post('', this.createAccount)
+            .post('/login', this.login)
 
     }
+
     async createAccount(req, res, next) {
         try {
             const data = await accountService.createAccount(req.body)
@@ -16,6 +18,17 @@ export class AccountsController extends BaseController {
             next(error)
         }
     }
+
+    async login(req, res, next) {
+        try {
+            const loginData = await accountService.login(req.body)
+            res.send(loginData)
+        } catch (error) {
+            next(error)
+        }
+    }
+
+
 
 
 
