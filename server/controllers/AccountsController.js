@@ -7,7 +7,16 @@ export class AccountsController extends BaseController {
         this.router
             .post('', this.createAccount)
             .post('/login', this.login)
+            .get('/myaccount', this.getAccount)
 
+    }
+    getAccount(req, res, next) {
+        try {
+            const data = "working"
+            res.send(data)
+        } catch (error) {
+            next(error.message)
+        }
     }
 
     async createAccount(req, res, next) {
