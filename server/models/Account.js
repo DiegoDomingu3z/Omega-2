@@ -25,5 +25,11 @@ export const AccountSchema = new Schema({
         type: Number,
         minlength: 16
     },
+    authToki: {
+        type: String,
+    },
+    authExpiration: {
+        type: Date
+    }
 },
     { timestamps: true, toJSON: { virtuals: true, } })

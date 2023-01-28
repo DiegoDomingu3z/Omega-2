@@ -16,15 +16,22 @@ class AccountService {
         if (accountInfo.age < 16) {
             throw new BadRequest("User is not old enough")
         }
+        var currentDat = new Date()
+        var futureDate = new Date(currentDat.getFullYear() + 1, currentDat.getMonth(), currentDat.getDate())
+        let toki = await this.authToken()
         const account = {
             email: accountInfo.email,
             password: bashP,
             firstName: accountInfo.firstName,
             lastName: accountInfo.lastName,
-            age: accountInfo.age
+            age: accountInfo.age,
+            authExpiration: futureDate,
+            authToki: toki
+
         }
         const data = await dbContext.Account.create(account)
         await data.save()
+        return data.authToki
     }
 
     // Login Algorithm, takes in reqBody contains password & email/username
@@ -43,15 +50,48 @@ class AccountService {
                 const ha$hPa$$ = account[0].password
                 let result = await bcrypt.compare(password.toString(), ha$hPa$$.toString())
                 if (result === true) {
-                    return account
+                    let authTok = await this.authToken()
+                    let userAccount = account[0]
+                    userAccount.authToki = authTok
+                    userAccount.save()
+                    return authTok
                 } else {
                     throw new Forbidden("Incorrect Password")
                 }
             }
         }
 
+        
+    
+    }
 
+    // algorithm to generate randomized tokens for a users session
+    // Create string of characters and numbers and generates token
+    async authToken(){
+        const char = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        const num = "0123456789"
+        let generatedChar = ''
+        let generatedNum = ''
+        const charLen = char.length
+        const numLen = num.length
+        let count = 0
+        while (count < 15){
+            generatedChar += char.charAt(Math.floor(Math.random() * charLen))
+            generatedNum += num.charAt(Math.floor(Math.random() * numLen))
+            count += 1;
+        }
+        let tok = generatedChar + generatedNum
+        let arr = tok.split('');
+        let len = arr.length
 
+        for (let i = 0; i < len - 1; i++) {
+            let j = Math.floor(Math.random() * (len - i)) + i;
+            let temp = arr[i]
+            arr[i] = arr[j]
+            arr[j] = temp
+            
+        }
+        return arr.join('')
     }
 
 }

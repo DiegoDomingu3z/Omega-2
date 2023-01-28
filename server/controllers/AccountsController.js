@@ -22,7 +22,7 @@ export class AccountsController extends BaseController {
     async createAccount(req, res, next) {
         try {
             const data = await accountService.createAccount(req.body)
-            res.send("Account Successfully Created")
+            res.send(data, "Account Successfully Activated")
         } catch (error) {
             next(error)
         }
