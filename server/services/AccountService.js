@@ -61,13 +61,13 @@ class AccountService {
             }
         }
 
-        
-    
+
+
     }
 
     // algorithm to generate randomized tokens for a users session
     // Create string of characters and numbers and generates token
-    async authToken(){
+    async authToken() {
         const char = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         const num = "0123456789"
         let generatedChar = ''
@@ -75,7 +75,7 @@ class AccountService {
         const charLen = char.length
         const numLen = num.length
         let count = 0
-        while (count < 15){
+        while (count < 15) {
             generatedChar += char.charAt(Math.floor(Math.random() * charLen))
             generatedNum += num.charAt(Math.floor(Math.random() * numLen))
             count += 1;
@@ -89,7 +89,7 @@ class AccountService {
             let temp = arr[i]
             arr[i] = arr[j]
             arr[j] = temp
-            
+
         }
         return arr.join('')
     }

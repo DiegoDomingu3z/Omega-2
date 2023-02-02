@@ -1,5 +1,6 @@
 import BaseController from "../utils/BaseController";
 import { accountService } from "../services/AccountService";
+const authorizeUser = require("../middleware/authUser");
 export class AccountsController extends BaseController {
 
     constructor() {
@@ -7,6 +8,7 @@ export class AccountsController extends BaseController {
         this.router
             .post('', this.createAccount)
             .post('/login', this.login)
+            .use('/apiProtect', authorizeUser)
             .get('/myaccount', this.getAccount)
 
     }
