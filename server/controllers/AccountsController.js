@@ -1,6 +1,7 @@
 import BaseController from "../utils/BaseController";
 import { accountService } from "../services/AccountService";
-const authorizeUser = require("../middleware/authUser");
+import { logger } from "../utils/Logger";
+import { authUser } from "../middleware/authUser"
 export class AccountsController extends BaseController {
 
     constructor() {
@@ -8,17 +9,9 @@ export class AccountsController extends BaseController {
         this.router
             .post('', this.createAccount)
             .post('/login', this.login)
-            .use('/apiProtect', authorizeUser)
-            .get('/myaccount', this.getAccount)
+            .use(this.authenticate)
+            .get('/myaccount', this.getAccount);
 
-    }
-    getAccount(req, res, next) {
-        try {
-            const data = "working"
-            res.send(data)
-        } catch (error) {
-            next(error.message)
-        }
     }
 
     async createAccount(req, res, next) {
@@ -39,6 +32,32 @@ export class AccountsController extends BaseController {
         }
     }
 
+    async getAccount(req, res, next) {
+        try {
+            const data = "working"
+            res.send(data)
+        } catch (error) {
+            next(error.message)
+        }
+    }
+
+    async authenticate(req, res, next) {
+        try {
+            logger.log("this is being called")
+            const token = req.header("Authorization")
+            if (!token) {
+                return res.status(401).send("FORBIDDEN")
+            }
+            let user = await authUser.findUser(token)
+            if (!user) {
+                return res.status(401).send("FORBIDDEN")
+            } else {
+                next()
+            }
+        } catch (error) {
+            res.send(error.message)
+        }
+    }
 
 
 

@@ -44,6 +44,7 @@ class AccountService {
             throw new BadRequest("NO PASSWORD OR USERNAME WERE ENTERED")
         } else {
             let account = await dbContext.Account.find({ email: userName })
+            // @ts-ignore
             if (account == 0) {
                 throw new BadRequest("Account not Found")
             } else {
