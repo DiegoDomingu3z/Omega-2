@@ -66,6 +66,33 @@ class AccountService {
 
     }
 
+
+    async getAccount($token) {
+        const accountData = await dbContext.Account.findOne({ authToki: $token })
+        let todayDate = new Date()
+        let verifyToken = accountData.authExpiration.getTime()
+        let time = todayDate.getTime()
+        if (verifyToken < time) {
+            console.log("expired token")
+            var currentDat = new Date()
+            var futureDate = new Date(currentDat.getFullYear() + 1, currentDat.getMonth(), currentDat.getDate())
+            if ($token == accountData.authToki) {
+                let newToken = await this.authToken()
+                accountData.authToki = newToken
+                accountData.authExpiration = futureDate
+                accountData.save()
+                logger.log("new token was successfully created for user")
+                logger.log(accountData.authExpiration)
+                return accountData
+            } else {
+                throw new Forbidden("Forbidden")
+            }
+
+        }
+
+    }
+
+
     // algorithm to generate randomized tokens for a users session
     // Create string of characters and numbers and generates token
     async authToken() {

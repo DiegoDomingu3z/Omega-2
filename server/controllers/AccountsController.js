@@ -34,7 +34,8 @@ export class AccountsController extends BaseController {
 
     async getAccount(req, res, next) {
         try {
-            const data = "working"
+            const $token = req.header("Authorization")
+            const data = await accountService.getAccount($token)
             res.send(data)
         } catch (error) {
             next(error.message)
