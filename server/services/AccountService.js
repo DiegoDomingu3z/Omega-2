@@ -41,13 +41,13 @@ class AccountService {
         const userName = loginData.email
         const password = loginData.password
         if (password == '' || userName == '') {
-            throw new BadRequest("NO PASSWORD OR USERNAME WERE ENTERED")
+            return("NO PASSWORD OR USERNAME WERE ENTERED")
         } else {
             // should probably change to findone
             let account = await dbContext.Account.find({ email: userName })
             // @ts-ignore
             if (account == 0) {
-                throw new BadRequest("Account not Found")
+                return("Account not Found")
             } else {
                 const ha$hPa$$ = account[0].password
                 let result = await bcrypt.compare(password.toString(), ha$hPa$$.toString())
@@ -63,7 +63,7 @@ class AccountService {
                     userAccount.save()
                     return authTok
                 } else {
-                    throw new Forbidden("Incorrect Password")
+                    return("INCORRECT PASSWORD")
                 }
             }
         }

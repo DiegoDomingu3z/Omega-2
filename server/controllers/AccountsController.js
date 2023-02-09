@@ -29,7 +29,20 @@ export class AccountsController extends BaseController {
     async login(req, res, next) {
         try {
             const loginData = await accountService.login(req.body)
-            res.send(loginData)
+            logger.log(loginData)
+            if (loginData == "INCORRECT PASSWORD") {
+                res.status(401).send("BAD REQUEST")
+                return
+            } if (loginData == "Account not Found") {
+                res.status(400).send("BAD REQUEST")
+                return
+            } if (loginData == "NO PASSWORD OR USERNAME WERE ENTERED") {
+                  res.status(401).send("BAD REQUEST")
+                  return
+            } else {
+                  res.send(loginData)       
+                  return
+             }
         } catch (error) {
             next(error)
         }
