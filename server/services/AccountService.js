@@ -9,6 +9,7 @@ class AccountService {
     // check if any inputs are empty
     // check if user is old enough 
     async createAccount(accountInfo) {
+        logger.log(accountInfo)
         const bashP = await bcrypt.hash(accountInfo.password, 10);
         if (accountInfo.email == '' || accountInfo.password == '' || accountInfo.firstName == '' || accountInfo.lastName == '') {
             throw new BadRequest("Not all info was entered")
@@ -92,11 +93,11 @@ class AccountService {
                 logger.log("new token was successfully created for user")
                 logger.log(accountData.authExpiration)
                 return accountData
-            } 
+            }
         }
         if ($token == accountData.authToki) {
             return accountData
-        } 
+        }
         if ($token != accountData.authToki) {
             throw new Forbidden("FORBIDDEN")
         }
@@ -108,8 +109,8 @@ class AccountService {
 
     // Simple logout function, finds based off authorization header
     // check if user exists, if it does it will remove token and expiration date (ending the session)
-    async logout($token){
-        const user = await dbContext.Account.findOne({ authToki: $token})
+    async logout($token) {
+        const user = await dbContext.Account.findOne({ authToki: $token })
         if (user) {
             user.authToki = ''
             user.authExpiration = undefined
@@ -118,7 +119,7 @@ class AccountService {
         } else {
             return true
         }
-        
+
     }
 
 
