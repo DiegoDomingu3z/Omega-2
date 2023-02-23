@@ -12,27 +12,32 @@ class AccountService {
         logger.log(accountInfo)
         const bashP = await bcrypt.hash(accountInfo.password, 10);
         if (accountInfo.email == '' || accountInfo.password == '' || accountInfo.firstName == '' || accountInfo.lastName == '') {
-            throw new BadRequest("Not all info was entered")
+            return "INVALID INFO"
         }
-        if (accountInfo.age < 16) {
-            throw new BadRequest("User is not old enough")
+        if (accountInfo.age < 18) {
+           return "INVALID AGE"
         }
-        var currentDat = new Date()
-        var futureDate = new Date(currentDat.getFullYear() + 1, currentDat.getMonth(), currentDat.getDate())
-        let toki = await this.authToken()
-        const account = {
-            email: accountInfo.email,
-            password: bashP,
-            firstName: accountInfo.firstName,
-            lastName: accountInfo.lastName,
-            age: accountInfo.age,
-            authExpiration: futureDate,
-            authToki: toki
-
+        let checkIfExists = await dbContext.Account.find({email: accountInfo.email})
+        logger.log(checkIfExists)
+        if (checkIfExists.length > 0) {
+           return "EMAIL ALREADY EXISTS"
+        } else {
+            var currentDat = new Date()
+            var futureDate = new Date(currentDat.getFullYear() + 1, currentDat.getMonth(), currentDat.getDate())
+            let toki = await this.authToken()
+            const account = {
+                email: accountInfo.email,
+                password: bashP,
+                firstName: accountInfo.firstName,
+                lastName: accountInfo.lastName,
+                age: accountInfo.age,
+                authExpiration: futureDate,
+                authToki: toki
+            }
+            const data = await dbContext.Account.create(account)
+            await data.save()
+            return data.authToki
         }
-        const data = await dbContext.Account.create(account)
-        await data.save()
-        return data.authToki
     }
 
     // Login Algorithm, takes in reqBody contains password & email/username

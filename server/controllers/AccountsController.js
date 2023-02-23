@@ -20,7 +20,18 @@ export class AccountsController extends BaseController {
     async createAccount(req, res, next) {
         try {
             const data = await accountService.createAccount(req.body)
-            res.send(data, "Account Successfully Activated")
+            if (data == "INVALID INFO") {
+                logger.log('info')
+                return res.status(400).send("INVALID INFO")
+            } else if (data == "INVALID AGE") {
+                logger.log('age')
+                return res.status(400).send("INVALID AGE")
+            } else if (data == "EMAIL ALREADY EXISTS") {
+                logger.log('email')
+                return res.status(400).send("EMAIL ARELADY EXISTS")
+            } else {
+                res.send(data)
+            }
         } catch (error) {
             next(error)
         }
