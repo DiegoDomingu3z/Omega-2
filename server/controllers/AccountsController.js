@@ -12,7 +12,7 @@ export class AccountsController extends BaseController {
             .post('/login', this.login)
             .use(this.authenticate)
             .get('/myaccount', this.getAccount)
-            .delete('/session', this.logout)
+            .delete('/logout', this.logout)
 
     }
 
