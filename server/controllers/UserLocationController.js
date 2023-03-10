@@ -16,13 +16,14 @@ export class UserLocationController extends BaseController{
 
     async setLocation(req, res, next){
         try {
-            const geoLoco = await userLocationService.setLocation(req.body)
+            const userId = req.user._id
+            const geoLoco = await userLocationService.setLocation(req.body, userId)
             if (geoLoco == "ALREADY SHARING") {
                 return res.status(400).send("ERROR")
             } else{ res.send(geoLoco)}
            
         } catch (error) {
-            next(error)
+            return error.message
         }
     }
 
@@ -33,6 +34,7 @@ export class UserLocationController extends BaseController{
             logger.log("this is being called")
             const token = req.header("Authorization")
             if (!token) {
+                logger.log("NO TOKEN PROVIDED")
                 return res.status(401).send("FORBIDDEN")
             }
             let user = await authUser.findUser(token)
@@ -40,6 +42,7 @@ export class UserLocationController extends BaseController{
                 return res.status(401).send("ERROR")
                 
             } else {
+                req.user = user
                 next()
             }
         } catch (error) {

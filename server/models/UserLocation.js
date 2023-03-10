@@ -6,7 +6,7 @@ export const UserLocationSchema = new Schema({
     accountId: {type: ObjectId, ref: 'Account', required: true},
     longitude: {type: String, },
     latitude: {type: String, },
-    shareLocation: {type: Boolean, required: true},
+    shareLocation: {type: Boolean, required: true, default: false},
 
 }, {
     timestamps: true, toJSON: {virtuals: true}

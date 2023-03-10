@@ -30,6 +30,6 @@ export const AccountSchema = new Schema({
     },
     authExpiration: {
         type: Date
-    }
+    },
 },
     { timestamps: true, toJSON: { virtuals: true, } })
