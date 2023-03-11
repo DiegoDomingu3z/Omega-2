@@ -1,13 +1,21 @@
 import { dbContext } from "../db/DbContext"
+import { logger } from "../utils/Logger"
 
 class UserLocationService {
 
-async setLocation(data){
+async setLocation(data, userId){
     const check = await this.checkUserLocationExists(data)
     if (check.length > 0) {
         return "ALREADY SHARING"
     } else {
-        const location = await dbContext.UserLocation.create(data)
+        logger.log(userId, "THIS THE USER ID")
+        const locationData = {
+            longitude: data.longitude,
+            latitude: data.latitude,
+            accountId: userId
+        }
+        logger.log(locationData)
+        const location = await dbContext.UserLocation.create(locationData)
         return location
     }
 
