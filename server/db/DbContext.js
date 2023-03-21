@@ -1,8 +1,10 @@
-import mongoose from 'mongoose'
+import mongoose, { mongo } from 'mongoose'
 import { AccountSchema } from '../models/Account';
 import { GymSchema } from '../models/Gym';
 import { UserGymSchema } from '../models/UserGym';
+import { UserLikesSchema } from '../models/UserLikes';
 import { UserLocationSchema } from '../models/UserLocation';
+import { UserMatchesSchema } from '../models/UserMatches';
 import { ValueSchema } from '../models/Value'
 
 class DbContext {
@@ -15,6 +17,10 @@ class DbContext {
   Gym = mongoose.model('Gym', GymSchema)
 
   UserGym = mongoose.model('UserGym', UserGymSchema)
+
+  UserLike = mongoose.model('UserLike', UserLikesSchema)
+
+  userMatches = mongoose.model('userMatches', UserMatchesSchema)
 
 }
 

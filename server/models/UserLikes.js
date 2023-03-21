@@ -8,6 +8,5 @@ export const UserLikesSchema = new Schema({
     createdAt: {
         type: Date,
         default: Date.now
-    },
-    match: { type: Boolean, default: false, required: true }
+    }
 })
