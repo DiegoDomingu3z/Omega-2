@@ -5,8 +5,16 @@ const key = process.env.GOOGLE_API_KEY
 const url = process.env.FIND_GYM
 class GymService {
 
-    // called in the controller 
-    // takes in gymid and userid
+
+
+    /**
+       * called in the controller 
+       * takes in gymid and userid
+       * @param {String} gymId
+       * @param {String} userId
+       * @returns {Object} gymRegistration
+      */
+
     async registerToGym(gymId, userId) {
         // checks if location exists && if its a gym
         const gymCheck = await this.checkGymExists(gymId)
@@ -31,9 +39,12 @@ class GymService {
         }
     }
 
-
-    // function to calls google api to check if location even exists
-    // data is the id the user send when registering to gym
+    /**
+      * function to calls google api to check if location even exists
+      * data is the id the user send when registering to gym
+      * @param {String} data (gyms google place ID)
+      * @returns {Object} checkData (gym details)
+     */
     async checkGymExists(data) {
         const options = {
             method: 'GET',
@@ -68,7 +79,13 @@ class GymService {
         }
     }
 
-    // takes in gym obj
+    /**
+     * THIS FUNCTION ALLOWS GYMS TO ALWAYS BE CREATED AS NEW USERS COME IN AROUND THE WORLD
+    * Checks if the user is already signed up with this gym, if is returns a Forbidden
+    * Checks if the gym is already established in the database
+    * @param {Object} gym (object containing information of gym)
+    * @returns {Object} gymCreation (document created about gym)
+   */
     async createGym(gym, userId) {
         const id = gym.place_id
         // checks to see if theres one?

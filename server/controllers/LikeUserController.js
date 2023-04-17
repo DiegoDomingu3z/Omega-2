@@ -13,13 +13,12 @@ export class LikeUserController extends BaseController {
 
     async swipeUser(req, res, next) {
         try {
-            // POSSIBLE PROBLEM
-            const accountId = req.user
+            const accountId = req.user._id
             const likedUserId = req.params.id
-            const likedData = likeUserService.swipeUser(accountId, likedUserId)
-            if (likedData === 200) {
-                res.status(200).send(`LIKED ${likedUserId}`)
-            } else if (likedData == 'MATCH') {
+            const likedData = await likeUserService.swipeUser(accountId, likedUserId)
+            if (likedData == 200) {
+                res.status(201).send(`LIKED ${likedUserId}`)
+            } else {
                 res.status(200).send(`MATCHED WITH ${likedUserId}`)
             }
         } catch (error) {
