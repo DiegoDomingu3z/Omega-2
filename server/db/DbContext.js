@@ -6,6 +6,8 @@ import { UserLikesSchema } from '../models/UserLikes';
 import { UserLocationSchema } from '../models/UserLocation';
 import { UserMatchesSchema } from '../models/UserMatches';
 import { ValueSchema } from '../models/Value'
+import { CloseFriendsSchema } from '../models/CloseFriends';
+import { PostSchema } from '../models/Post';
 
 class DbContext {
   Values = mongoose.model('Value', ValueSchema);
@@ -21,6 +23,10 @@ class DbContext {
   UserLike = mongoose.model('UserLike', UserLikesSchema)
 
   userMatches = mongoose.model('userMatches', UserMatchesSchema)
+
+  closeFriends = mongoose.model('CloseFriends', CloseFriendsSchema)
+
+  Posts = mongoose.model('Posts', PostSchema)
 
 }
 

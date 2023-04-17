@@ -4,10 +4,15 @@ import { logger } from '../utils/Logger'
 import { BadRequest, Forbidden } from '../utils/Errors'
 class AccountService {
 
-    // takes in body of accountInfo, encrypts password with salt, 
-    // flush body into correct json to be stored in
-    // check if any inputs are empty
-    // check if user is old enough 
+
+    /**
+    * takes in body of accountInfo, encrypts password with salt, 
+    * flush body into correct json to be stored in
+    * check if any inputs are empty
+    * check if user is old enough 
+    * @param {Object} accountInfo
+    * @returns {String} Token
+   */
     async createAccount(accountInfo) {
         logger.log(accountInfo)
         const bashP = await bcrypt.hash(accountInfo.password, 10);
@@ -15,12 +20,12 @@ class AccountService {
             return "INVALID INFO"
         }
         if (accountInfo.age < 18) {
-           return "INVALID AGE"
+            return "INVALID AGE"
         }
-        let checkIfExists = await dbContext.Account.find({email: accountInfo.email})
+        let checkIfExists = await dbContext.Account.find({ email: accountInfo.email })
         logger.log(checkIfExists)
         if (checkIfExists.length > 0) {
-           return "EMAIL ALREADY EXISTS"
+            return "EMAIL ALREADY EXISTS"
         } else {
             var currentDat = new Date()
             var futureDate = new Date(currentDat.getFullYear() + 1, currentDat.getMonth(), currentDat.getDate())
@@ -40,9 +45,15 @@ class AccountService {
         }
     }
 
-    // Login Algorithm, takes in reqBody contains password & email/username
-    // Finds account based on email, if found will alg with continue else stops,
-    // if account found, password is compared to stored hashed, if true, login complete
+    /**
+  * Login Algorithm, takes in reqBody contains password & email/username 
+  *  Finds account based on email, if found will alg with continue else stops,
+  * if account found, password is compared to stored hashed, if true, login complete
+
+  * @param {Object} loginData
+    @returns {String} authTok
+ */
+
     async login(loginData) {
         const userName = loginData.email
         const password = loginData.password
@@ -79,6 +90,16 @@ class AccountService {
     }
 
 
+
+    /**
+   * Finds account based on token that is provided by user,
+   * checks to see if token provided is the same and checks if its expired, if it is
+   * it will generate new token for user to store locally
+   * Throws Forbiddens tries to access account without token
+   * @param {String}
+   * @returns {Object}
+  */
+
     async getAccount($token) {
         const accountData = await dbContext.Account.findOne({ authToki: $token })
         let todayDate = new Date()
@@ -112,8 +133,12 @@ class AccountService {
 
     }
 
-    // Simple logout function, finds based off authorization header
-    // check if user exists, if it does it will remove token and expiration date (ending the session)
+    /**
+   * Simple logout function, finds based off authorization header
+   * check if user exists, if it does it will remove token and expiration date (ending the session)
+   * @param {string} $token
+   * @returns {Boolean}
+  */
     async logout($token) {
         const user = await dbContext.Account.findOne({ authToki: $token })
         if (user) {
@@ -128,8 +153,11 @@ class AccountService {
     }
 
 
-    // algorithm to generate randomized tokens for a users session
-    // Create string of characters and numbers and generates token
+    /**
+* algorithm to generate randomized tokens for a users session
+* Create string of characters and numbers and generates token
+* @returns {string} generated token
+*/
     async authToken() {
         const char = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         const num = "0123456789"
