@@ -1,21 +1,30 @@
 import { authUser } from "../middleware/authUser";
+import { userGymService } from "../services/UserGymService";
 import BaseController from "../utils/BaseController";
+import { logger } from "../utils/Logger";
 
 export class UserGymController extends BaseController {
     constructor() {
-        super('api/gym_user/')
+        super('api/users/')
         this.router
             .use(this.authenticate)
             // id of gym
-            .get('gym/:id', this.getAllUsers)
+            // gym/:id?offset=:starting&limit=:ending
+            .get('/gym/:id', this.getAllUsers)
+
     }
 
     async getAllUsers(req, res, next) {
         try {
             const gymId = req.params.id
-
+            const offset = parseInt(req.query.offset) || 0
+            const limit = parseInt(req.query.limit) || 10
+            const userId = req.user._id
+            const data = await userGymService.getGymUsers(gymId, offset, limit, userId)
+            res.send(data)
         } catch (error) {
             console.log(error)
+            next(error)
         }
     }
 

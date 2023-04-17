@@ -5,7 +5,7 @@ import { logger } from "../utils/Logger";
 
 export class UserLocationController extends BaseController {
     constructor() {
-        super('api/account')
+        super('api/accounts')
         this.router
             .use(this.authenticate)
             .post('/location', this.setLocation)

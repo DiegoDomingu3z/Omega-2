@@ -2,9 +2,8 @@ import BaseController from "../utils/BaseController";
 import { accountService } from "../services/AccountService";
 import { logger } from "../utils/Logger";
 import { authUser } from "../middleware/authUser"
-import { Forbidden } from "../utils/Errors";
-export class AccountsController extends BaseController {
 
+export class AccountsController extends BaseController {
     constructor() {
         super('account')
         this.router
@@ -16,7 +15,7 @@ export class AccountsController extends BaseController {
 
     }
 
-   
+
     async createAccount(req, res, next) {
         try {
             const data = await accountService.createAccount(req.body)
@@ -57,7 +56,7 @@ export class AccountsController extends BaseController {
     }
 
 
-    async logout(req, res, next){
+    async logout(req, res, next) {
         try {
             const $token = req.header("Authorization")
             if (!$token) {
@@ -88,7 +87,7 @@ export class AccountsController extends BaseController {
             let user = await authUser.findUser(token)
             if (!user) {
                 return res.status(401).send("ERROR")
-                
+
             } else {
                 next()
             }

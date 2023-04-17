@@ -13,6 +13,7 @@ export class LikeUserController extends BaseController {
 
     async swipeUser(req, res, next) {
         try {
+            // POSSIBLE PROBLEM
             const accountId = req.user
             const likedUserId = req.params.id
             const likedData = likeUserService.swipeUser(accountId, likedUserId)

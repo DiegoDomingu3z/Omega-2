@@ -1,4 +1,4 @@
-import mongoose, { mongo } from 'mongoose'
+import mongoose from 'mongoose'
 import { AccountSchema } from '../models/Account';
 import { GymSchema } from '../models/Gym';
 import { UserGymSchema } from '../models/UserGym';

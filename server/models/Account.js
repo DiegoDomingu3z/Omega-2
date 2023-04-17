@@ -31,8 +31,8 @@ export const AccountSchema = new Schema({
     authExpiration: {
         type: Date
     },
-    gender: {
-        type: String, enum: ['Male', 'Female'], required: true
-    }
+    // gender: {
+    //     type: String, required: true
+    // }
 },
     { timestamps: true, toJSON: { virtuals: true, } })
