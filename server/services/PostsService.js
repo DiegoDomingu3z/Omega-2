@@ -29,6 +29,10 @@ class PostsService {
 
     }
 
+    async createPost(data, userId) {
+
+    }
+
 
 
 

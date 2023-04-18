@@ -7,7 +7,7 @@ export class PostController extends BaseController {
     constructor() {
         super('posts')
         this.router
-            .use(this.authorization)
+            .use(this.authenticate)
             // create offset & limit
             .post('create', this.createPost)
             .get('/friends', this.getFriendsPosts)
@@ -16,7 +16,7 @@ export class PostController extends BaseController {
 
 
 
-    async createPost() {
+    async createPost(req, res, next) {
         try {
             const data = req.body
             const userId = req.user._id
@@ -28,10 +28,11 @@ export class PostController extends BaseController {
             }
         } catch (error) {
             logger.error(error)
+            next(error)
         }
     }
 
-    async getFriendsPosts() {
+    async getFriendsPosts(req, res, next) {
         try {
             const userId = req.user._id
             const offset = parseInt(req.query.offset) || 0
@@ -40,6 +41,7 @@ export class PostController extends BaseController {
             res.send(posts)
         } catch (error) {
             logger.error(error)
+            next(error)
         }
 
     }
