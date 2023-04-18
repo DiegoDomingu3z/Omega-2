@@ -5,8 +5,7 @@ const ObjectId = Schema.Types.ObjectId
 export const CloseFriendsSchema = new Schema({
     accountId: { type: ObjectId, ref: 'Account', required: true },
     friends: [{
-        type: ObjectId,
-        ref: "Account",
+        type: String,
         unique: true
     }]
 })
