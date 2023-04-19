@@ -33,24 +33,18 @@ class CloseFriendsService {
 
             const data = await dbContext.closeFriends.findOne(query)
             const arr = data.friends
-
             if (arr.includes(friendId)) {
                 return 401
             } else {
                 arr.push(friendId)
-                const query2 = {
-                    query,
-                    { friends: arr }
+                const query2 = { query }
                 const doc = await dbContext.closeFriends.findOneAndUpdate(query2)
             }
+        } catch (error) {
+            logger.log(error)
+            return error
         }
-
-            return data
-    } catch(error) {
-        logger.log(error)
-        return error
     }
-}
 
 
 
