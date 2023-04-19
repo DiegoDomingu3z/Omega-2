@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import { dbContext } from "../db/DbContext"
 import { logger } from '../utils/Logger'
-import { BadRequest, Forbidden } from '../utils/Errors'
+import { BadRequest, Forbidden, NotFound } from '../utils/Errors'
 class AccountService {
 
 
@@ -102,35 +102,37 @@ class AccountService {
 
     async getAccount($token) {
         const accountData = await dbContext.Account.findOne({ authToki: $token })
-        let todayDate = new Date()
-        let verifyToken = accountData.authExpiration.getTime()
-        let time = todayDate.getTime()
-        // checks if the auth date for token is expired
-        // if it is refresh the token and date
-        if (verifyToken < time) {
-            console.log("expired token")
-            var currentDat = new Date()
-            var futureDate = new Date(currentDat.getFullYear() + 1, currentDat.getMonth(), currentDat.getDate())
+        if (!accountData) {
+            throw new NotFound("NO ACCOUNT FOUND")
+        } else {
+            let todayDate = new Date()
+            let verifyToken = accountData.authExpiration.getTime()
+            let time = todayDate.getTime()
+            // checks if the auth date for token is expired
+            // if it is refresh the token and date
+            if (verifyToken < time) {
+                console.log("expired token")
+                var currentDat = new Date()
+                var futureDate = new Date(currentDat.getFullYear() + 1, currentDat.getMonth(), currentDat.getDate())
+                if ($token == accountData.authToki) {
+                    let newToken = await this.authToken()
+                    accountData.authToki = newToken
+                    accountData.authExpiration = futureDate
+                    accountData.save()
+                    logger.log("new token was successfully created for user")
+                    logger.log(accountData.authExpiration)
+                    return accountData
+                }
+            }
             if ($token == accountData.authToki) {
-                let newToken = await this.authToken()
-                accountData.authToki = newToken
-                accountData.authExpiration = futureDate
-                accountData.save()
-                logger.log("new token was successfully created for user")
-                logger.log(accountData.authExpiration)
                 return accountData
+            } else if ($token != accountData.authToki) {
+                throw new Forbidden("FORBIDDEN")
+            }
+            else {
+                throw new Forbidden("FORBIDDEN")
             }
         }
-        if ($token == accountData.authToki) {
-            return accountData
-        }
-        if ($token != accountData.authToki) {
-            throw new Forbidden("FORBIDDEN")
-        }
-        else {
-            throw new Forbidden("FORBIDDEN")
-        }
-
     }
 
     /**

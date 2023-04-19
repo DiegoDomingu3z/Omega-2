@@ -49,7 +49,12 @@ export class AccountsController extends BaseController {
         try {
             const $token = req.header("Authorization")
             const data = await accountService.getAccount($token)
-            res.send(data)
+            if (Object.prototype.toString.call(data) === '[object Object]') {
+                res.status(200).send(data)
+                logger.log(Object.prototype.toString.call(data), "WHAT")
+            } else {
+                res.send(data)
+            }
         } catch (error) {
             next(error)
         }

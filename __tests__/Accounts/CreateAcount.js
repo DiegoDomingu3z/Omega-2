@@ -1,9 +1,10 @@
 const request = require('supertest')
-const baseUrl = 'http://localhost:5000'
+const baseUrl = 'http://localhost:4000'
 
 const firstNames = ['Emily', 'Ethan', 'Emma', 'Noah', 'Olivia', 'Liam', 'Ava', 'William', 'Sophia', 'Mason', 'Isabella', 'James', 'Mia', 'Benjamin', 'Charlotte', 'Lucas', 'Amelia', 'Michael', 'Harper', 'Alexander', 'Evelyn', 'Elijah', 'Abigail', 'Daniel', 'Emily', 'Matthew', 'Elizabeth', 'Aiden', 'Sofia', 'Henry', 'Ella', 'Joseph', 'Madison', 'Samuel', 'Scarlett', 'David', 'Avery', 'Carter', 'Grace', 'Jackson', 'Chloe', 'Luke', 'Victoria', 'Lily', 'Eleanor', 'Gabriel', 'Hazel', 'Julia', 'Penelope', 'Nathan', 'Riley', 'Isaac', 'Zoe'];
 const lastNames = ['Smith', 'Johnson', 'Williams', 'Jones', 'Brown', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez', 'Hernandez', 'Lopez', 'Gonzalez', 'Perez', 'Taylor', 'Anderson', 'Wilson', 'Moore', 'Jackson', 'Martin', 'Lee', 'Hall', 'Allen', 'Young', 'King', 'Wright', 'Scott', 'Green', 'Baker', 'Adams', 'Nelson', 'Carter', 'Mitchell', 'Perez', 'Roberts', 'Turner', 'Phillips', 'Campbell', 'Parker', 'Evans', 'Edwards', 'Collins', 'Stewart', 'Sanchez', 'Morris', 'Rogers', 'Reed', 'Cook', 'Morgan', 'Cooper'];
-
+const min = 21;
+const max = 30;
 
 async function generateRandomName() {
     const randomFirstNameIndex = Math.floor(Math.random() * firstNames.length);
@@ -13,6 +14,11 @@ async function generateRandomName() {
         firstName: `${firstNames[randomFirstNameIndex]}`,
         lastName: `${lastNames[randomLastNameIndex]}`
     }
+}
+
+async function randomAge() {
+    const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+    return randomNumber
 }
 
 
@@ -31,6 +37,8 @@ async function generateData(accountAge) {
 
 
 
+
+
 async function sendData(data) {
     const res = await request(baseUrl)
         .post('/account').send(data)
@@ -42,7 +50,8 @@ describe('Account Creation', () => {
     let res;
     let data;
     beforeAll(async () => {
-        data = await generateData(21)
+        age = await randomAge()
+        data = await generateData(age)
         res = await sendData(data)
     })
     it("Should return token string (200)", async () => {
@@ -50,7 +59,6 @@ describe('Account Creation', () => {
     })
     it("Should return 'EMAIL ALREADY EXISTS' (401)", async () => {
         const res = await sendData(data)
-        console.log(res.text)
         expect(res.text).toEqual('EMAIL ALREADY EXISTS')
         expect(res.status).toBe(401)
     })
@@ -61,7 +69,8 @@ describe('Valid Age', () => {
     let res;
     let data;
     beforeAll(async () => {
-        data = await generateData(21)
+        age = await randomAge()
+        data = await generateData(age)
         res = await sendData(data)
     })
     it("SHOULD BE VALID AGE (200)", async () => {
