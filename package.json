@@ -6,6 +6,7 @@
   "scripts": {
     "debug": "node index.js",
     "start": "node index.js",
+    "test": "jest",
     "dev": "node index.js",
     "setup": "npm install",
     "sass": "sass --watch client/assets/scss/main.scss:client/assets/style/main.css"
@@ -30,6 +31,8 @@
     "eslint-plugin-import": "2.26.0",
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-promise": "6.0.0",
-    "sass": "1.54.4"
+    "jest": "^29.5.0",
+    "sass": "1.54.4",
+    "supertest": "^6.3.3"
   }
 }
