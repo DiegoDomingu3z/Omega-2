@@ -13,7 +13,7 @@ class PostsService {
         try {
             const matchesArr = await dbContext.userMatches.find({ matchId: id }).select('accountId')
                 .exec()
-            const closeFriendArr = await dbContext.closeFriends.find({ friendId: id }).select('accountId')
+            const closeFriendArr = await dbContext.closeFriends.find({ friends: id }).select('accountId')
                 .exec()
             // WILL POSSIBLY NEED THIS
             // const matchesAccountIds = matchesArr.map(match => match.accountId); // Extract accountId values from matchesArr

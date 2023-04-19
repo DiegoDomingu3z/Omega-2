@@ -21,15 +21,15 @@ export class AccountsController extends BaseController {
             const data = await accountService.createAccount(req.body)
             if (data == "INVALID INFO") {
                 logger.log('info')
-                return res.status(400).send("INVALID INFO")
+                return res.status(401).send("INVALID INFO")
             } else if (data == "INVALID AGE") {
                 logger.log('age')
-                return res.status(400).send("INVALID AGE")
+                return res.status(401).send("INVALID AGE")
             } else if (data == "EMAIL ALREADY EXISTS") {
                 logger.log('email')
-                return res.status(400).send("EMAIL ARELADY EXISTS")
+                return res.status(401).send("EMAIL ALREADY EXISTS")
             } else {
-                res.send(data)
+                res.status(200).send(data)
             }
         } catch (error) {
             next(error)
@@ -101,5 +101,7 @@ export class AccountsController extends BaseController {
 
 
 }
+
+module.exports = AccountsController
 
 
