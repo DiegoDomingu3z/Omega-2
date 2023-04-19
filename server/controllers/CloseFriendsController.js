@@ -14,7 +14,7 @@ export class CloseFriendsController extends BaseController {
 
 
 
-    async addCloseFriend(req, res, nest) {
+    async addCloseFriend(req, res, next) {
         try {
             const adminId = req.user._id
             const friendId = req.params.userId
@@ -28,7 +28,7 @@ export class CloseFriendsController extends BaseController {
             }
         } catch (error) {
             logger.error(error)
-            return error
+            next(error)
         }
     }
 

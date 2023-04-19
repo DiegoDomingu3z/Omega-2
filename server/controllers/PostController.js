@@ -5,11 +5,11 @@ import { logger } from "../utils/Logger";
 
 export class PostController extends BaseController {
     constructor() {
-        super('posts')
+        super('api/posts')
         this.router
             .use(this.authenticate)
             // create offset & limit
-            .post('create', this.createPost)
+            .post('/create', this.createPost)
             .get('/friends', this.getFriendsPosts)
     }
 
@@ -20,11 +20,13 @@ export class PostController extends BaseController {
         try {
             const data = req.body
             const userId = req.user._id
-            const createData = postsService.createPost(data, userId)
+            const createData = await postsService.createPost(data, userId)
             if (createData == 400) {
                 res.status(400).send("NOT AVAILABLE")
             } else if (createData == 401) {
                 res.status(400).send("Forbidden")
+            } else {
+                res.status(200).send(createData)
             }
         } catch (error) {
             logger.error(error)
