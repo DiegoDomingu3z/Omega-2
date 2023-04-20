@@ -51,7 +51,6 @@ export class AccountsController extends BaseController {
             const data = await accountService.getAccount($token)
             if (Object.prototype.toString.call(data) === '[object Object]') {
                 res.status(200).send(data)
-                logger.log(Object.prototype.toString.call(data), "WHAT")
             } else {
                 res.send(data)
             }
