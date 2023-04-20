@@ -16,18 +16,20 @@ class PostsService {
             const closeFriendArr = await dbContext.closeFriends.find({ friends: id }).select('accountId')
                 .exec()
             // WILL POSSIBLY NEED THIS
-            // const matchesAccountIds = matchesArr.map(match => match.accountId); // Extract accountId values from matchesArr
-            // const closeFriendAccountIds = closeFriendArr.map(closeFriend => closeFriend.accountId); // Extract accountId values from closeFriendArr
-            const correctPosts = [...matchesArr, ...closeFriendArr]
+            const matchesAccountIds = matchesArr.map(match => match.accountId); // Extract accountId values from matchesArr
+            const closeFriendAccountIds = closeFriendArr.map(closeFriend => closeFriend.accountId); // Extract accountId values from closeFriendArr
+            // lets signed in account see his own posts in the feed
+            const letOwnUserSee = [id]
+            const correctPosts = [...matchesAccountIds, ...closeFriendAccountIds, ...letOwnUserSee]
             logger.log(correctPosts)
-            const data = dbContext.Posts.find({
+            const data = await dbContext.Posts.find({
                 accountId: { $in: correctPosts }
             })
-                .sort({ timeCreated: -1, timeUpdated: - 1 })
+                .sort({ createdAt: -1, updatedAt: - 1 })
                 .skip(Number(offset))
                 .limit(limit)
                 .exec()
-            logger.log(data)
+            logger.log(data, 'data')
             return Promise.resolve(data)
         } catch (error) {
             logger.error(error)
@@ -46,7 +48,7 @@ class PostsService {
                 bio: data.bio,
                 image: data.image,
                 createdAt: new Date(),
-                timeUpdated: new Date()
+                updatedAt: new Date()
             }
             const postData = await dbContext.Posts.create(sanatizedData)
             return Promise.resolve(postData)
