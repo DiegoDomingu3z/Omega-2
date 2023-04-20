@@ -22,6 +22,11 @@ socketProvider.initialize(httpServer)
 // Connect to Atlas MongoDB
 DbConnection.connect()
 
+app.get('/', (req, res) => {
+  res.json("BOBBY SALINAS IS HELLA GAY")
+})
+
+
 // Start Server
 httpServer.listen(port, () => {
   logger.log(`[SERVING ON PORT: ${port}]`)
