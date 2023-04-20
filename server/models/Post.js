@@ -10,5 +10,6 @@ export const PostSchema = new Schema({
     // THIS WILL CHANGE ONCE I FIGURE HOW TO STORE IMAGES IN MONGODB
     image: { type: String, required: true },
     likes: { type: Number, default: 0 },
-    timeCreated: { type: Date }
+    createdAt: { type: Date },
+    updatedAt: { type: Date }
 })

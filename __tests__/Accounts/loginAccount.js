@@ -107,3 +107,5 @@ describe('Incorrect Password (403)', () => {
         })
     }
 })
+
+module.exports = correctLogins;
