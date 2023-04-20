@@ -16,14 +16,19 @@ export class CloseFriendsController extends BaseController {
 
     async addCloseFriend(req, res, next) {
         try {
-            const adminId = req.user._id
+            const adminId = req.accountId
             const friendId = req.params.userId
+            const tokenSent = req.header("Authorization")
+            const token = req.user
             const addProcess = await closeFriendsService.addFriend(adminId, friendId)
             if (addProcess == 401) {
                 res.status(401).send('FORBIDDEN')
             } else if (addProcess == 400) {
                 res.status(400).send('ERROR')
             } else {
+                if (tokenSent != token) {
+                    res.status(200).json({ data: addProcess, newToken: token })
+                }
                 res.status(200).send(addProcess)
             }
         } catch (error) {
@@ -39,17 +44,17 @@ export class CloseFriendsController extends BaseController {
         try {
             logger.log("this is being called")
             const token = req.header("Authorization")
-            logger.log(token)
             if (!token) {
-                logger.log("NO TOKEN PROVIDED")
                 return res.status(401).send("FORBIDDEN")
             }
             let user = await authUser.findUser(token)
-            if (!user) {
-                return res.status(401).send("ERROR")
-
+            if (user == 403) {
+                return res.status(403).send("TOKEN ARE EXPIRED, LOG BACK IN")
+            } else if (user == {}) {
+                return res.status(400).send("NO ACCOUNT FOUND")
             } else {
-                req.user = user
+                req.user = user.accessToken
+                req.accountId = user.accountId
                 next()
             }
         } catch (error) {

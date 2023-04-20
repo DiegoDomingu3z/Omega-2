@@ -29,7 +29,7 @@ export class AccountsController extends BaseController {
                 logger.log('email')
                 return res.status(401).send("EMAIL ALREADY EXISTS")
             } else {
-                res.status(200).send(data)
+                res.status(200).json(data)
             }
         } catch (error) {
             next(error)
@@ -47,12 +47,17 @@ export class AccountsController extends BaseController {
 
     async getAccount(req, res, next) {
         try {
-            const $token = req.header("Authorization")
-            const data = await accountService.getAccount($token)
-            if (Object.prototype.toString.call(data) === '[object Object]') {
-                res.status(200).send(data)
+            const tokenSent = req.header("Authorization")
+            const token = req.user
+            const data = await accountService.getAccount(token)
+            if (data == 400) {
+                res.status(400).send("ACCOUNT NOT FOUND")
             } else {
-                res.send(data)
+                if (tokenSent != token) {
+                    res.status(200).json({ account: data, newToken: token })
+                } else {
+                    res.status(200).json(data)
+                }
             }
         } catch (error) {
             next(error)
@@ -89,10 +94,12 @@ export class AccountsController extends BaseController {
                 return res.status(401).send("FORBIDDEN")
             }
             let user = await authUser.findUser(token)
-            if (!user) {
-                return res.status(401).send("ERROR")
-
+            if (user == 403) {
+                return res.status(403).send("TOKEN ARE EXPIRED, LOG BACK IN")
+            } else if (user == {}) {
+                return res.status(400).send("NO ACCOUNT FOUND")
             } else {
+                req.user = user.accessToken
                 next()
             }
         } catch (error) {

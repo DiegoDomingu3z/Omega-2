@@ -18,11 +18,20 @@ export class UserLocationController extends BaseController {
     async setLocation(req, res, next) {
         try {
             logger.log("location was called")
-            const userId = req.user._id
+            const userId = req.accountId
             const geoLoco = await userLocationService.setLocation(req.body, userId)
+            const tokenSent = req.header("Authorization")
+            const token = req.user
             if (geoLoco == "User does not exits") {
                 return res.status(400).send("ERROR")
-            } else { logger.log("SUCCESS"), res.send(geoLoco) }
+            } else {
+                if (tokenSent != token) {
+                    res.status(200).json({ data: Geolocation, token: token })
+                } else {
+                    res.status(200).json({ data: Geolocation })
+                    logger.log("SUCCESS")
+                }
+            }
         } catch (error) {
             next(error)
         }
@@ -30,14 +39,21 @@ export class UserLocationController extends BaseController {
 
     async getUserLocation(req, res, next) {
         try {
-            const userId = req.user._id
+            const userId = req.accountId
             const geoLoco = await userLocationService.getUserLocation(userId)
+            const tokenSent = req.header("Authorization")
+            const token = req.user
             if (geoLoco == "user does not exists") {
                 return res.status(400).send("ERROR")
             } if (geoLoco == "FORBIDDEN") {
                 return res.status(401).send("ERROR")
             } else {
-                res.send(geoLoco)
+                if (tokenSent != token) {
+                    res.status(200).json({ data: geoLoco, token: token })
+                } else {
+                    res.status(200).json({ data: geoLoco })
+                    logger.log("SUCCESS")
+                }
             }
         } catch (error) {
             next(error)
@@ -50,17 +66,17 @@ export class UserLocationController extends BaseController {
         try {
             logger.log("this is being called")
             const token = req.header("Authorization")
-            logger.log(token)
             if (!token) {
-                logger.log("NO TOKEN PROVIDED")
                 return res.status(401).send("FORBIDDEN")
             }
             let user = await authUser.findUser(token)
-            if (!user) {
-                return res.status(401).send("ERROR")
-
+            if (user == 403) {
+                return res.status(403).send("TOKEN ARE EXPIRED, LOG BACK IN")
+            } else if (user == {}) {
+                return res.status(400).send("NO ACCOUNT FOUND")
             } else {
-                req.user = user
+                req.user = user.accessToken
+                req.accountId = user.accountId
                 next()
             }
         } catch (error) {
