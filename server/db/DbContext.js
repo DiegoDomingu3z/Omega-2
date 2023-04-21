@@ -8,6 +8,7 @@ import { UserMatchesSchema } from '../models/UserMatches';
 import { ValueSchema } from '../models/Value'
 import { CloseFriendsSchema } from '../models/CloseFriends';
 import { PostSchema } from '../models/Post';
+import { AuthTokensSchema } from '../models/AuthTokens';
 
 class DbContext {
   Values = mongoose.model('Value', ValueSchema);
@@ -27,6 +28,8 @@ class DbContext {
   closeFriends = mongoose.model('CloseFriends', CloseFriendsSchema)
 
   Posts = mongoose.model('Posts', PostSchema)
+
+  AuthTokens = mongoose.model('AuthTokens', AuthTokensSchema)
 
 }
 

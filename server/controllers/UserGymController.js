@@ -19,9 +19,15 @@ export class UserGymController extends BaseController {
             const gymId = req.params.id
             const offset = parseInt(req.query.offset) || 0
             const limit = parseInt(req.query.limit) || 10
-            const userId = req.user._id
+            const userId = req.accountId
             const data = await userGymService.getGymUsers(gymId, offset, limit, userId)
-            res.send(data)
+            const tokenSent = req.header("Authorization")
+            const token = req.user
+            if (tokenSent != token) {
+                res.status(200).json({ data: data, token: token })
+            } else {
+                res.status(200).json({ data: data })
+            }
         } catch (error) {
             console.log(error)
             next(error)
@@ -29,21 +35,22 @@ export class UserGymController extends BaseController {
     }
 
 
+
     async authenticate(req, res, next) {
         try {
             logger.log("this is being called")
             const token = req.header("Authorization")
-            logger.log(token)
             if (!token) {
-                logger.log("NO TOKEN PROVIDED")
                 return res.status(401).send("FORBIDDEN")
             }
             let user = await authUser.findUser(token)
-            if (!user) {
-                return res.status(401).send("ERROR")
-
+            if (user == 403) {
+                return res.status(403).send("TOKEN ARE EXPIRED, LOG BACK IN")
+            } else if (user == {}) {
+                return res.status(400).send("NO ACCOUNT FOUND")
             } else {
-                req.user = user
+                req.user = user.accessToken
+                req.accountId = user.accountId
                 next()
             }
         } catch (error) {

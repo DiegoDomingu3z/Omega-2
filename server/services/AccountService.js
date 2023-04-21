@@ -27,21 +27,16 @@ class AccountService {
         if (checkIfExists.length > 0) {
             return "EMAIL ALREADY EXISTS"
         } else {
-            var currentDat = new Date()
-            var futureDate = new Date(currentDat.getFullYear() + 1, currentDat.getMonth(), currentDat.getDate())
-            let toki = await this.authToken()
             const account = {
                 email: accountInfo.email,
                 password: bashP,
                 firstName: accountInfo.firstName,
                 lastName: accountInfo.lastName,
                 age: accountInfo.age,
-                authExpiration: futureDate,
-                authToki: toki
             }
             const data = await dbContext.Account.create(account)
             await data.save()
-            return data.authToki
+            return data
         }
     }
 
@@ -70,15 +65,36 @@ class AccountService {
                 let result = await bcrypt.compare(password.toString(), ha$hPa$$.toString())
                 // if password is the same after uncryptions do the following
                 if (result === true) {
-                    var currentDat = new Date()
-                    var futureDate = new Date(currentDat.getFullYear() + 1, currentDat.getMonth(), currentDat.getDate())
-                    let authTok = await this.authToken()
-                    let userAccount = account[0]
-                    // set the token and expiration date
-                    userAccount.authToki = authTok
-                    userAccount.authExpiration = futureDate
-                    userAccount.save()
-                    return authTok
+                    // var currentDat = new Date()
+                    // var futureDate = new Date(currentDat.getFullYear() + 1, currentDat.getMonth(), currentDat.getDate())
+                    // let authTok = await this.authToken()
+                    // let userAccount = account[0]
+                    // // set the token and expiration date
+                    // userAccount.authToki = authTok
+                    // userAccount.authExpiration = futureDate
+                    // userAccount.save()
+                    let newAccess = await this.authToken()
+                    let NewRefresh = await this.authToken()
+                    let auth = {
+                        accountId: account[0]._id,
+                        refreshToken: NewRefresh,
+                        accessToken: newAccess
+                    }
+                    const checkAuthDoc = await dbContext.AuthTokens.findOne({ accountId: account[0]._id })
+                    if (checkAuthDoc) {
+                        const updatedDoc = await dbContext.AuthTokens.findOneAndUpdate({ accountId: account[0]._id }, {
+                            accessToken: newAccess,
+                            refreshToken: NewRefresh,
+                            refreshCreatedAt: new Date(),
+                            accessCreatedAt: new Date(),
+                            refreshExpires: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60,
+                            accessExpires: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60
+                        }, { returnOriginal: false })
+                        return Promise.resolve(updatedDoc)
+                    } else {
+                        const authorization = await dbContext.AuthTokens.create(auth)
+                        return Promise.resolve(authorization)
+                    }
                 } else {
                     throw new Forbidden("Incorrect Password")
                 }
@@ -88,9 +104,6 @@ class AccountService {
 
 
     }
-
-
-
     /**
    * Finds account based on token that is provided by user,
    * checks to see if token provided is the same and checks if its expired, if it is
@@ -100,44 +113,79 @@ class AccountService {
    * @returns {Object}
   */
 
+    // BREAKING
     async getAccount($token) {
-        if (!$token) {
-            throw new NotFound("NO TOKEN PROVIDED")
-        } else {
-            const accountData = await dbContext.Account.findOne({ authToki: $token })
-            if (!accountData) {
-                throw new NotFound("NO ACCOUNT FOUND")
+        try {
+            if (!$token) {
+                return Promise.resolve(400)
             } else {
-                let todayDate = new Date()
-                let verifyToken = accountData.authExpiration.getTime()
-                let time = todayDate.getTime()
-                // checks if the auth date for token is expired
-                // if it is refresh the token and date
-                if (verifyToken < time) {
-                    console.log("expired token")
-                    var currentDat = new Date()
-                    var futureDate = new Date(currentDat.getFullYear() + 1, currentDat.getMonth(), currentDat.getDate())
-                    if ($token == accountData.authToki) {
-                        let newToken = await this.authToken()
-                        accountData.authToki = newToken
-                        accountData.authExpiration = futureDate
-                        accountData.save()
-                        logger.log("new token was successfully created for user")
-                        logger.log(accountData.authExpiration)
-                        return accountData
-                    }
+                const id = await dbContext.AuthTokens.findOne({ accessToken: $token })
+                if (!id) {
+                    return Promise.resolve(400)
                 }
-                if ($token == accountData.authToki) {
-                    return accountData
-                } else if ($token != accountData.authToki) {
-                    throw new Forbidden("FORBIDDEN")
-                }
-                else {
-                    throw new Forbidden("FORBIDDEN")
+                const accountInfo = await dbContext.Account.findOne({ _id: id.accountId })
+                if (!accountInfo) {
+                    return Promise.resolve(400)
+                } else {
+                    return Promise.resolve(accountInfo)
                 }
             }
+        } catch (error) {
+            logger.log(error)
+            return error
         }
     }
+
+
+
+
+    async verifyTokens(accessExpiration, accessCreatedAt, refreshExpiration, refreshCreatedAt) {
+        try {
+            const now = new Date();
+            const accessExpired = new Date(accessExpiration * 1000 + accessCreatedAt.getTime());
+            const refreshExpired = new Date(refreshExpiration * 1000 + refreshCreatedAt.getTime());
+            // check if access token is expired
+            if (now > accessExpired) {
+                logger.log("EXPIRED ACCESS TOKEN")
+                // check if refresh token is expired
+                if (now > refreshExpired) {
+                    // if it is it returns 403
+                    // user will have to login again and obtain new tokens
+                    return Promise.resolve(403)
+                } else if (now < refreshExpired) {
+                    // if access token is expired but refresh isn't will send back 201 to determine more logic
+                    return Promise.resolve(201)
+                }
+            } else if (now < accessExpired) {
+                return Promise.resolve(200)
+            }
+
+        } catch (error) {
+            logger.error(error)
+            return error
+        }
+    }
+
+
+
+    async generateNewTokens() {
+        try {
+            const newData = {
+                accessCreatedAt: new Date(),
+                accessExpires: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60,
+                accessToken: await this.authToken()
+            }
+            return Promise.resolve(newData)
+
+        } catch (error) {
+            logger.error(error)
+            return error
+        }
+    }
+
+
+
+
 
     /**
    * Simple logout function, finds based off authorization header
@@ -146,15 +194,9 @@ class AccountService {
    * @returns {Boolean}
   */
     async logout($token) {
-        const user = await dbContext.Account.findOne({ authToki: $token })
-        if (user) {
-            user.authToki = ''
-            user.authExpiration = undefined
-            user.save()
-            return false
-        } else {
-            return true
-        }
+        const user = await dbContext.AuthTokens.findOneAndDelete({ accessToken: $token })
+        logger.log(user)
+        return true
 
     }
 

@@ -19,7 +19,7 @@ export class PostController extends BaseController {
     async createPost(req, res, next) {
         try {
             const data = req.body
-            const userId = req.user._id
+            const userId = req.user.accountId
             const createData = await postsService.createPost(data, userId)
             if (createData == 400) {
                 res.status(400).send("NOT AVAILABLE")
@@ -36,11 +36,17 @@ export class PostController extends BaseController {
 
     async getFriendsPosts(req, res, next) {
         try {
-            const userId = req.user._id
+            const userId = req.accountId
             const offset = parseInt(req.query.offset) || 0
             const limit = parseInt(req.query.limit) || 15
             const posts = await postsService.getFriendsPosts(offset, limit, userId)
-            res.send(posts)
+            const tokenSent = req.header("Authorization")
+            const token = req.user
+            if (tokenSent != token) {
+                res.status(200).json({ data: posts, token: token })
+            } else {
+                res.status(200).json({ data: posts })
+            }
         } catch (error) {
             logger.error(error)
             next(error)
@@ -49,22 +55,21 @@ export class PostController extends BaseController {
     }
 
 
-
     async authenticate(req, res, next) {
         try {
             logger.log("this is being called")
             const token = req.header("Authorization")
-            logger.log(token)
             if (!token) {
-                logger.log("NO TOKEN PROVIDED")
                 return res.status(401).send("FORBIDDEN")
             }
             let user = await authUser.findUser(token)
-            if (!user) {
-                return res.status(401).send("ERROR")
-
+            if (user == 403) {
+                return res.status(403).send("TOKEN ARE EXPIRED, LOG BACK IN")
+            } else if (user == {}) {
+                return res.status(400).send("NO ACCOUNT FOUND")
             } else {
-                req.user = user
+                req.user = user.accessToken
+                req.accountId = user.accountId
                 next()
             }
         } catch (error) {

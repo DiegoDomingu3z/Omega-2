@@ -13,13 +13,25 @@ export class LikeUserController extends BaseController {
 
     async swipeUser(req, res, next) {
         try {
-            const accountId = req.user._id
+            const accountId = req.accountId
             const likedUserId = req.params.id
             const likedData = await likeUserService.swipeUser(accountId, likedUserId)
+            const tokenSent = req.header("Authorization")
+            const token = req.user
             if (likedData == 200) {
-                res.status(201).send(`LIKED ${likedUserId}`)
+                if (tokenSent != token) {
+                    res.status(201).json({ data: likedUserId, matched: 'no', token: token })
+                    logger.log(`liked`, likedUserId)
+                } else {
+                    res.status(201).json({ data: likedUserId, matched: 'no' })
+                }
             } else {
-                res.status(200).send(`MATCHED WITH ${likedUserId}`)
+                if (tokenSent != token) {
+                    res.status(201).json({ data: likedUserId, matched: 'yes', token: token })
+                } else {
+                    res.status(201).json({ data: likedUserId, matched: 'yes' })
+                    logger.log('matched with ', likedUserId)
+                }
             }
         } catch (error) {
             console.log(error)
@@ -33,17 +45,17 @@ export class LikeUserController extends BaseController {
         try {
             logger.log("this is being called")
             const token = req.header("Authorization")
-            logger.log(token)
             if (!token) {
-                logger.log("NO TOKEN PROVIDED")
                 return res.status(401).send("FORBIDDEN")
             }
             let user = await authUser.findUser(token)
-            if (!user) {
-                return res.status(401).send("ERROR")
-
+            if (user == 403) {
+                return res.status(403).send("TOKEN ARE EXPIRED, LOG BACK IN")
+            } else if (user == {}) {
+                return res.status(400).send("NO ACCOUNT FOUND")
             } else {
-                req.user = user
+                req.user = user.accessToken
+                req.accountId = user.accountId
                 next()
             }
         } catch (error) {

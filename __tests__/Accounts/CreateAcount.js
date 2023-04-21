@@ -6,6 +6,12 @@ const lastNames = ['Smith', 'Johnson', 'Williams', 'Jones', 'Brown', 'Garcia', '
 const min = 21;
 const max = 30;
 
+
+/**
+* Generates random name to enter into database
+ @returns {Object} random account info
+*/
+
 async function generateRandomName() {
     const randomFirstNameIndex = Math.floor(Math.random() * firstNames.length);
     const randomLastNameIndex = Math.floor(Math.random() * lastNames.length);
@@ -16,11 +22,26 @@ async function generateRandomName() {
     }
 }
 
+
+
+
+
+/**
+* Generates random number between 21 and 30
+ @returns {Number} random number for age
+*/
+
+
 async function randomAge() {
     const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
-    return randomNumber
+    return Promise.resolve(randomNumber)
 }
 
+/**
+* Generates and compiles account data to send to DB
+@param {Number}  number for age
+@returns {Object} accountData
+*/
 
 async function generateData(accountAge) {
     let data = await generateRandomName()
@@ -31,18 +52,23 @@ async function generateData(accountAge) {
         lastName: data.lastName,
         age: accountAge
     }
-    return data3
+    return Promise.resolve(data3)
 }
 
 
 
 
 
+/**
+* Sends data to api 
+@param {Object} accountData
+@returns {String} accounts Access Token
+*/
 
 async function sendData(data) {
     const res = await request(baseUrl)
         .post('/account').send(data)
-    return res
+    return Promise.resolve(res)
 }
 
 describe('Account Creation', () => {
