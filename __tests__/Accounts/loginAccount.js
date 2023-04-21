@@ -4,25 +4,25 @@ const accounts = require('./CreateAcount')
 
 const correctLogins = [
     {
-        email: 'DavidRodriguez@gmail.com',
+        email: 'AveryLee@gmail.com',
         password: '123Testing'
     },
     {
-        email: 'EvelynWilson@gmail.com',
+        email: 'ElizabethReed@gmail.com',
         password: '123Testing'
     },
     {
-        email: 'LilyMoore@gmail.com',
+        email: 'OliviaMorris@gmail.com',
         password: '123Testing'
     }
 ]
 const badLogins = [
     {
-        email: 'LilyMoore@gmail.com',
+        email: 'OliviaMorris@gmail.com',
         password: '123dTesting'
     },
     {
-        "email": "LilyMoore@gmail.com",
+        "email": "ElizabethReed@gmail.com",
         "password": "123dTesting"
     }
 ]
@@ -32,7 +32,7 @@ const badData = [
         password: '123Testing'
     },
     {
-        email: 'NoahMorris@gmail.com',
+        email: 'ElizabethLopez@gmail.com',
     }
 ]
 const noAccount = [
@@ -64,7 +64,22 @@ describe('Successful Login (200)', () => {
         })
         it("Should return token (200)", async () => {
             expect(res.text).toEqual(expect.any(String))
+
         })
+        // it('Should return OBJ containing credentials', async () => {
+        //     expect(res.text).toMatchString({
+        //         accountId: expect.any(String),
+        //         refreshToken: expect.any(String),
+        //         accessToken: expect.any(String),
+        //         refreshExpires: expect.any(Number),
+        //         accessExpires: expect.any(Number),
+        //         _id: expect.any(String),
+        //         refreshCreatedAt: expect.any(String),
+        //         _id: expect.any(String),
+        //         accessCreatedAt: expect.any(String)
+        //     });
+        // });
+
     }
 })
 

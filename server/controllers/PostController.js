@@ -19,14 +19,20 @@ export class PostController extends BaseController {
     async createPost(req, res, next) {
         try {
             const data = req.body
-            const userId = req.user.accountId
+            const userId = req.accountId
             const createData = await postsService.createPost(data, userId)
+            const tokenSent = req.header("Authorization")
+            const token = req.user
             if (createData == 400) {
                 res.status(400).send("NOT AVAILABLE")
             } else if (createData == 401) {
                 res.status(400).send("Forbidden")
             } else {
-                res.status(200).send(createData)
+                if (tokenSent != token) {
+                    res.status(200).json({ data: createData, token: token })
+                } else {
+                    res.status(200).json({ data: createData })
+                }
             }
         } catch (error) {
             logger.error(error)
