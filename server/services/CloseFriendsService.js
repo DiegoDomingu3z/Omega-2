@@ -33,7 +33,7 @@ class CloseFriendsService {
             const query2 = {
                 accountId: adminId, matchId: friendId
             }
-            const matchCheck = this.checkifMatch(query2)
+            const matchCheck = await this.checkifMatch(query2)
             if (matchCheck == 401) {
                 return 401
             }
