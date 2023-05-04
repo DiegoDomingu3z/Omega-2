@@ -3,6 +3,7 @@ import { logger } from '../utils/Logger';
 const rp = require('request-promise');
 const key = process.env.GOOGLE_API_KEY
 const url = process.env.FIND_GYM
+const gymsUrl = process.env.GYMS_AROUND
 class GymService {
 
 
@@ -67,7 +68,7 @@ class GymService {
             return 400
         } else {
             // check if the location type is a gym or health && if its operational
-            if (checkData.result.types.includes("gym", "health") && checkData.result.business_status == 'OPERATIONAL') {
+            if (checkData.result.types.includes("gym") && checkData.result.business_status == 'OPERATIONAL') {
                 // filter down even more
                 // check if its a school or closed, if it is return 400
                 if (checkData.result.types.includes("school") || checkData.result.permanently_closed == true) {
@@ -111,6 +112,40 @@ class GymService {
                 )
                 return gymCreation
             }
+        }
+    }
+
+
+
+    async getGymsAroundMe(id) {
+        try {
+            const userLocation = await dbContext.UserLocation.findOne({ accountId: id })
+            if (!userLocation) {
+                return Promise.resolve(404)
+            } else {
+                const loco = `${userLocation.latitude}, ${userLocation.longitude}`
+                const options = {
+                    method: 'GET',
+                    uri: `${gymsUrl}?location=${loco}&radius=32187&type=gym&key=${key}`
+                }
+
+                let gyms = await rp(options, function (error, res) {
+                    if (error) {
+                        logger.log(error)
+                        return 400
+                    } else {
+                        return res
+                    }
+                })
+                const checkData = JSON.parse(gyms)
+                const filteredLocations = checkData.results.filter(location => location.types.includes("gym")
+                    && !location.types.includes('school')
+                    && location.business_status == "OPERATIONAL");
+                return filteredLocations
+            }
+        } catch (error) {
+            logger.error(error)
+            return error
         }
     }
 }
