@@ -9,6 +9,7 @@ export class GymController extends BaseController {
         super('api/gym')
         this.router
             .use(this.authenticate)
+            .get('/around-me', this.getGymsAroundMe)
             .post('/', this.registerToGym)
     }
 
@@ -32,6 +33,25 @@ export class GymController extends BaseController {
                 }
             }
         } catch (error) {
+            next(error)
+        }
+    }
+
+
+    async getGymsAroundMe(req, res, next) {
+        try {
+            const userId = req.accountId
+            const tokenSent = req.header("Authorization")
+            const token = req.user
+            // const radius = parseInt(req.query.offset) || 
+            const gyms = await gymService.getGymsAroundMe(userId)
+            if (tokenSent != token) {
+                res.status(200).json({ data: gyms })
+            } else {
+                res.status(200).send(gyms)
+            }
+        } catch (error) {
+            logger.error(error)
             next(error)
         }
     }

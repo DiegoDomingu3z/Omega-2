@@ -22,16 +22,13 @@ export class UserLocationController extends BaseController {
             const geoLoco = await userLocationService.setLocation(req.body, userId)
             const tokenSent = req.header("Authorization")
             const token = req.user
-            if (geoLoco == "User does not exits") {
-                return res.status(400).send("ERROR")
+            if (tokenSent != token) {
+                res.status(200).json({ data: geoLoco, token: token })
             } else {
-                if (tokenSent != token) {
-                    res.status(200).json({ data: Geolocation, token: token })
-                } else {
-                    res.status(200).json({ data: Geolocation })
-                    logger.log("SUCCESS")
-                }
+                res.status(200).json({ data: geoLoco })
+                logger.log("SUCCESS")
             }
+
         } catch (error) {
             next(error)
         }
@@ -44,9 +41,9 @@ export class UserLocationController extends BaseController {
             const tokenSent = req.header("Authorization")
             const token = req.user
             if (geoLoco == "user does not exists") {
-                return res.status(400).send("ERROR")
-            } if (geoLoco == "FORBIDDEN") {
-                return res.status(401).send("ERROR")
+                return res.status(400).json("ERROR")
+            } else if (geoLoco == "FORBIDDEN") {
+                return res.status(401).json("ERROR")
             } else {
                 if (tokenSent != token) {
                     res.status(200).json({ data: geoLoco, token: token })
